@@ -1,0 +1,52 @@
+
+// Give me all channels (tag) under Priority with category Cloud
+
+// PlanId 123
+// Tag "channel"
+// Relationship (Parent (Metadata.Category = "Cloud", Distance = 2))
+
+// Projects under Cloud Category(3)
+// Priority One (priority - level 1)
+    // Channel Group (channel-group level 2)
+// Channel One (channel - level 1)
+    // Channel (channel - level 2)
+// Channel 2 (channel - level 1)
+
+// PlanId 123
+// Metadata.Category = Cloud
+// Level = 1
+
+
+(*
+1 -> Banana
+    2 -> Grape
+        3 -> Apple
+
+Fruits(1)
+
+Banana ...
+
+4 -> Pineapple
+    1 -> Banana
+    5 -> Pear
+
+1  -> "Metadata, Name, Banana"
+    2 -> None
+        3 -> None
+4 -> None
+    5 -> "PlanId, 123"
+
+Projects
+1 | Banana | priority
+2 | Grape | channel-group
+3 | ...
+4 | ... | priority
+...
+
+Relationships
+1 | 2
+2 | 3
+4 | 1
+4 | 5
+
+*)
