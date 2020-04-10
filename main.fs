@@ -6,28 +6,34 @@ module rec Main =
       
     type LevelNumber = int
 
+    type AvailableFilters =
+      | PlanId of string
+      | ProjectId of string
+      | Metadata of Logic<Pair<string, Value>>
+      |
+
     // what is popularity?relevance? - aggregation?
     type LevelFilter =
-      | PlanId of string
-      | Metadata of Logic<Pair<string, string>>
+      | Filter of Logic<Pair<string, Value>>
+      | Nothing
 
     type LevelMetadataFilter = (LevelNumber *  LevelFilter)
 
     type Filter =
-      { Level: LevelFilter list option
+      { Self: LevelFilter list option
         Parent: LevelMetadataFilter list option
         Child: LevelMetadataFilter list option }
 
     type LevelInclusion =
       | All
-      | Fields of string list
-
-    type LevelMetadataInclusion = (LevelNumber * LevelInclusion)
+      | Select of string list
+      | Nothing
 
     type Inclusion =
-      { Level: LevelInclusion list option
-        Parent: LevelMetadataInclusion list option
-        Child: LevelMetadataInclusion list option }
+      { Self: LevelInclusion
+        Parent: LevelInclusion
+        Child: LevelInclusion
+        GrandChild: LevelInclusion }
 
     type SortDirection =
       | Ascending
@@ -40,27 +46,31 @@ module rec Main =
 
     type Query =
       { Filter: Filter option
-        Inclusion: Inclusion option
+        Inclusion: Inclusion
         Sort: Sort option }
+
+    let inclusion =
+      { Self = Nothing
+        Parent = Nothing
+        GrandParent = Nothing
+        Child = Nothing
+        GrandChild = Nothing
+        GreatGrandChild = Nothing }
 
     let query: Query =
       { Filter =
           Some
-            { Level =
-                Some
-                  [ Metadata (Field(Equals("Name", "Bob"))) ]
+            { Self =
+                Filter
+                  (And
+                    (Field
+                      (Equals("Name", String "Bob"))),
+                     Field
+                      (Equals("PlanId", String "abcd")))
               Parent = None
               Child = None }
-        Inclusion =
-          Some
-            { Level = None // TODO: we want this to be all?
-              Parent =
-                Some
-                  [ (2, All)
-                    (1, Fields [ "Name"; "Description" ])]
-              Child =
-                Some
-                  [(1, Fields [ "Name"; "Technologies" ])]}
+        Inclusion = 
+          {inclusion with Self = Select["Name", "Technologies"]; Parent = All}
         Sort = None }
 
     printfn "%A" query
