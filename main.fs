@@ -12,9 +12,10 @@ module rec Main =
         GrandChild: 'QueryProperty }
 
     type FilterProperties =
-      | PlanId of FieldOperation<string>
-      | ProjectId of FieldOperation<string>
+      | PlanId of FieldOperation<Value>
+      | ProjectId of FieldOperation<Value>
       | Metadata of FieldOperation<Pair<string, Value>>
+      | Relation of string * FieldOperation<Pair<string, Value>>
     
     type FieldFilter =
       | Filter of Logic<FilterProperties>
@@ -68,8 +69,13 @@ module rec Main =
           { filter with
               Self = Filter
                 (And
-                  (Field (PlanId (Equals("1800contacts"))),
-                   Field (Metadata (Equals("Tag", String "Priority"))))) }
+                  (And
+                    (Field
+                      (PlanId (Equals(String "1800contacts"))),
+                     Field
+                      (Metadata (Equals("Tag", String "Priority")))),
+                   Field
+                    (Relation ("Technologies", (StartsWith("Name", String "Cloud")))))) }
         Inclusion =
           { inclusion with Self = All }
         Sort =
