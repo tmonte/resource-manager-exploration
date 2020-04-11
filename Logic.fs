@@ -20,23 +20,23 @@ module rec Logic =
   type Logic<'Field> =
     | And of Logic<'Field> * Logic<'Field>
     | Or of Logic<'Field> * Logic<'Field>
-    | Field of FieldOperation<'Field>
+    | Field of 'Field
 
-  type private Field = Pair<string, Value>
+  type private Operation = FieldOperation<Pair<string, Value>>
 
   // Examples
-  let private a: Logic<Field> =
+  let private a: Logic<Operation> =
     Field
       (Equals ("Name", String "Bob"))
 
-  let private b: Logic<Field> =
+  let private b: Logic<Operation> =
     And
       (Field
         (Equals("Name", String "Bob")),
        Field
         (StartsWith("Description", String "Hello")))
 
-  let private c: Logic<Field> =
+  let private c: Logic<Operation> =
     And
       (Or
         (Field
