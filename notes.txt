@@ -53,3 +53,7 @@ Relationships
 
 // Q: How do we know what level we are targetting?
 // A: At this point it shouldn't matter, because we'll never query by level
+
+// [<Interface>]
+// type IProjectAccess =
+//   abstract GetProject : Query -> Result<Project, Error>

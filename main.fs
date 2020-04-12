@@ -3,86 +3,46 @@ namespace ResourceManagerExploration
 open Logic
 
 module rec Main =
-      
-    type Levels<'QueryProperty> =
-      { Self: 'QueryProperty
-        Parent: 'QueryProperty
-        GrandParent: 'QueryProperty
-        Child: 'QueryProperty
-        GrandChild: 'QueryProperty }
 
-    type FilterProperties =
-      | PlanId of FieldOperation<Value>
-      | ProjectId of FieldOperation<Value>
-      | Metadata of FieldOperation<Pair<string, Value>>
-      | Relation of string * FieldOperation<Pair<string, Value>>
-    
-    type FieldFilter =
-      | Filter of Logic<FilterProperties>
-      | Nothing
+  type FieldFilter =
+    | PlanId of FieldOperation<Value>
+    | ProjectId of FieldOperation<Value>
+    | Metadatum of FieldOperation<Pair<string, Value>>
+    | Relation of string * FieldFilter
 
-    type Filter = Levels<FieldFilter>
+  type Filter = Logic<int * FieldFilter>
 
-    let filter: Filter =
-      { Self = FieldFilter.Nothing
-        Parent = FieldFilter.Nothing
-        GrandParent = FieldFilter.Nothing
-        Child = FieldFilter.Nothing
-        GrandChild = FieldFilter.Nothing }
+  type FieldInclusion =
+    | All
+    | Select of string list
+    | Related of string * FieldInclusion
+    | Nothing
 
-    type FieldInclusion =
-      | All
-      | Select of string list
-      | Nothing
+  type Inclusion = (int * FieldInclusion) list
 
-    type Inclusion = Levels<FieldInclusion>
+  type FieldSort =
+    | Ascending of string
+    | Descending of string
 
-    let inclusion: Inclusion =
-      { Self = FieldInclusion.Nothing
-        Parent = FieldInclusion.Nothing
-        GrandParent = FieldInclusion.Nothing
-        Child = FieldInclusion.Nothing
-        GrandChild = FieldInclusion.Nothing }
+  type Sort = (int * FieldSort list) list
 
-    type FieldSort =
-      | Ascending of string
-      | Descending of string
+  type Query =
+    { Filter: Filter
+      Inclusion: Inclusion
+      Sort: Sort }
 
-    type Sort = Levels<FieldSort list>
+  printfn "*** All Priorities for a 1800contacts Plan ***"
 
-    let sort: Sort =
-      { Self = []
-        Parent = []
-        GrandParent = []
-        Child = []
-        GrandChild = [] }
+  let priorities1800contacts: Query =
+    { Filter =
+        And
+          (And
+            (Field(0, PlanId(Equals(String "1800contacts"))),
+             Field(0, Metadatum(Equals("Tag", String "Priority")))),
+           Field(0, Relation("Technologies", Metadatum(StartsWith("Name", String "Cloud")))))
+      Inclusion =
+        [ (0, All)
+          (0, Related("Technologies", All)) ]
+      Sort = [ (0, [ Ascending("Name") ]) ] }
 
-    type Query =
-      { Filter: Filter
-        Inclusion: Inclusion
-        Sort: Sort }
-
-    printfn "*** All Priorities for a 1800contacts Plan ***" 
-
-    let priorities1800contacts: Query =
-      { Filter =
-          { filter with
-              Self = Filter
-                (And
-                  (And
-                    (Field
-                      (PlanId (Equals(String "1800contacts"))),
-                     Field
-                      (Metadata (Equals("Tag", String "Priority")))),
-                   Field
-                    (Relation ("Technologies", (StartsWith("Name", String "Cloud")))))) }
-        Inclusion =
-          { inclusion with Self = All }
-        Sort =
-          { sort with Self = [Ascending("Name")] } }
-
-    printfn "%A" priorities1800contacts
-
-    // [<Interface>]
-    // type IProjectAccess =
-    //   abstract GetProject : Query -> Result<Project, Error>
+  printfn "%A" priorities1800contacts
