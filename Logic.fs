@@ -9,6 +9,7 @@ module rec Logic =
     | Int of int
     | Float of float
     | Date of DateTimeOffset
+    | Null
 
   type Pair<'Key, 'Value> = ('Key * 'Value)
 
@@ -16,10 +17,13 @@ module rec Logic =
     | StartsWith of 'Field
     | Contains of 'Field
     | Equals of 'Field
+    | NotEquals of 'Field
 
   type Logic<'Field> =
     | And of Logic<'Field> * Logic<'Field>
     | Or of Logic<'Field> * Logic<'Field>
+    | All of 'Field list
+    | Any of 'Field list
     | Field of 'Field
 
   type private Operation = FieldOperation<Pair<string, Value>>
