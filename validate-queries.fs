@@ -36,26 +36,17 @@ module Validate =
       Inclusion =
         [ (0,
            Select
-             [ "Id"
-               "Name"
-               "Description"
-               "PlanId"
-               "Objective"
-               "TotalDuration"
-               "CreatedDate" ]) ]
+             [ "Id"; "Name"; "Description"; "PlanId"; "Objective"; "TotalDuration"; "CreatedDate" ]) ]
       Sort = [] }
-      
-// TODO -----------
 
-// SELECT
-//     channel_id as ChannelId, user_handle as userHandle, percent_complete as PercentComplete, watched_duration as WatchedDuration
-// FROM
-//     dvs_replication.channel_progress_v1
-// WHERE
-//     channel_id in (
-//                     select
-//                         c.id
-//                     from
-//                         dvs_replication.channel_v1 c
-//                           join dvs_replication.plan p on p.id = c.plan_id and p.has_priorities = true
-//                     );
+  let getChannelsByPlanId myId planId: Query =
+    { Filter =
+        Some
+          (All
+            [ (0, PlanId(Equals(String planId)))
+              (0, Relation("Plan", Metadatum(Equals("HasPriorities", Boolean true))))
+              (0, Metadatum(NotEquals("CreatedDate", Null))) ])
+      Inclusion =
+        [ (0, Select [ "ChannelId"; "UserHandle" ])
+          (0, Related("ChannelProgressV1", Select [ "PercentComplete"; "WatchedDuration" ])) ]
+      Sort = [] }

@@ -9,6 +9,7 @@ module rec Logic =
     | Int of int
     | Float of float
     | Date of DateTimeOffset
+    | Boolean of bool
     | Null
 
   type Pair<'Key, 'Value> = ('Key * 'Value)
