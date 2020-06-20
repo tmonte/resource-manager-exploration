@@ -1,3 +1,4 @@
+
 namespace ResourceManagerExploration
 
 open System
