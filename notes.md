@@ -1,5 +1,15 @@
-## Sample Tables
-### Project
+# Tables
+
+*[Playground](https://www.db-fiddle.com/f/jwvD3CrkcGQpKpQwNhiJDf/1)*
+
+##### Relationships
+| a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | b |
+|:-|:-|
+| 1 | 3 |
+| 3 | 4 |
+| 2 | 5 |
+
+##### Project
 | id&nbsp;&nbsp;&nbsp; | tag | name |
 |:-|:-|:-|
 | 1 | Priority | Project One |
@@ -8,15 +18,8 @@
 | 4 | Channel | Sub Sub Project One |
 | 5 | Channel | Sub Project Two |
 
-### Relationships
-| a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | b |
-|:-|:-|
-| 1 | 3 |
-| 3 | 4 |
-| 2 | 5 |
 
-### Schema
-[Playground](https://www.db-fiddle.com/f/jwvD3CrkcGQpKpQwNhiJDf/1)
+### Schema 
 
 ```sql
 CREATE TABLE projects (
@@ -26,28 +29,47 @@ CREATE TABLE projects (
 );
 
 CREATE TABLE relationships (
-	a INTEGER NOT NULL REFERENCES projects(id) ON UPDATE CASCADE ON DELETE CASCADE,
-	b INTEGER NOT NULL REFERENCES projects(id) ON UPDATE CASCADE ON DELETE CASCADE,
+	a INTEGER NOT NULL
+  		REFERENCES projects(id)
+  		ON UPDATE CASCADE
+  		ON DELETE CASCADE,
+	b INTEGER NOT NULL
+  		REFERENCES projects(id)
+  		ON UPDATE CASCADE
+  		ON DELETE CASCADE,
 	PRIMARY KEY (a, b)
 );
 
-CREATE INDEX a_idx ON relationships (a);
-CREATE INDEX b_idx ON relationships (b);
+CREATE INDEX a_idx
+	ON relationships (a);
+CREATE INDEX b_idx
+	ON relationships (b);
+CREATE UNIQUE INDEX pair_unique_idx
+	ON relationships (LEAST(a, b), GREATEST(a, b));
+ALTER TABLE relationships 
+    ADD CONSTRAINT no_self_loops_chk CHECK (a <> b);
+```
 
-INSERT INTO projects (id, tag, name) VALUES (1, 'Priority', 'Project One');
-INSERT INTO projects (id, tag, name) VALUES (2, 'Priority', 'Project Two');
-INSERT INTO projects (id, tag, name) VALUES (3, 'ChannelGroup', 'Sub Project One');
-INSERT INTO projects (id, tag, name) VALUES (4, 'Channel', 'Sub Sub Project One');
-INSERT INTO projects (id, tag, name) VALUES (5, 'Channel', 'Sub Project Two');
+### Data
 
+```sql
+INSERT INTO projects (id, tag, name)
+	VALUES (1, 'Priority', 'Project One');
+INSERT INTO projects (id, tag, name)
+	VALUES (2, 'Priority', 'Project Two');
+INSERT INTO projects (id, tag, name)
+	VALUES (3, 'ChannelGroup', 'Sub Project One');
+INSERT INTO projects (id, tag, name)
+	VALUES (4, 'Channel', 'Sub Sub Project One');
+INSERT INTO projects (id, tag, name)
+	VALUES (5, 'Channel', 'Sub Project Two');
+
+INSERT INTO relationships (a, b)
+	VALUES (1, 3), (3, 4), (2, 5);
 ```
 
 ### Queries
-
-Q. How to query full project?
-A. All paths from root to leaf
-
-#### Transitive closure
+- **Transitive closure** (All paths from root)
 
 ```sql
 WITH RECURSIVE transitive_closure (a, b, distance, path_string) AS
