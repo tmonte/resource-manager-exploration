@@ -61,6 +61,14 @@ let getChannelsByPlanId myId planId: Query =
         (0, Related("ChannelProgressV1", Select [ "PercentComplete"; "WatchedDuration" ])) ]
     Sort = [] }
 
-let res = transform priorities1800contacts
+let getProjectById projectId =
+  { Filter =
+      Some
+        (Field(0, ProjectId(Equals(String projectId))))
+    Inclusion =
+      [ (0, Select ["name"]) ]
+    Sort = [] }
+
+let res = transform (getProjectById "1") 
 
 printfn "%A" res
